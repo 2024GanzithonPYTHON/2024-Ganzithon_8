@@ -61,8 +61,11 @@ function Write() {
           <div className="write-word-count">0/500</div>
         </div>
         <div className="write-addpic">
-          <img src={`${process.env.PUBLIC_URL}/img/write-addPic.png`} alt="" />
-          <div className="write-img-count">0/5개</div>
+          <img
+            src={`${process.env.PUBLIC_URL}/img/write-addPic.png`}
+            alt=""
+            style={{ height: "110px" }}
+          />
           <input
             type="file"
             name="file"
@@ -73,6 +76,7 @@ function Write() {
             for="uploadImg"
           />
         </div>
+        <div className="write-img-count">0/5개</div>
       </div>
     </>
   );
