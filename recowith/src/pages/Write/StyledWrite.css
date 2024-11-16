@@ -17,9 +17,9 @@
   -webkit-text-stroke-width: 0.25;
   -webkit-text-stroke-color: #5c564c;
   font-family: Aboreto;
-  font-size: 15px;
+  font-size: 18px;
   font-style: normal;
-  font-weight: 400;
+  font-weight: 700;
   line-height: normal;
 }
 .write-backBtn,
@@ -94,7 +94,7 @@ input[type="checkbox"]:checked + label::before {
   left: 15px;
   font-size: 12px;
   font-style: normal;
-  font-weight: 500;
+  font-weight: 700;
 }
 
 .write-title-input {
@@ -120,9 +120,9 @@ input[type="checkbox"]:checked + label::before {
   font-family: "Pretendard Variable";
   font-size: 20px;
   font-style: normal;
-  font-weight: 600;
+  font-weight: 550;
   line-height: 180%;
-  letter-spacing: -0.6px;
+  letter-spacing: 0.2px;
 }
 
 .write-date {
@@ -156,6 +156,9 @@ input[type="date"] {
   background: url(../../../public/img/write-datepicker.png) no-repeat right 7px;
   width: 100px;
   height: auto;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.5px;
 }
 
 .write-date-input,
@@ -181,7 +184,7 @@ input[type="date"] {
   font-style: normal;
   font-weight: 400;
   line-height: 180%;
-  letter-spacing: -0.48px;
+  letter-spacing: 0.2px;
 }
 .write-content-input::placeholder {
   color: #938a7e;
@@ -190,7 +193,7 @@ input[type="date"] {
   font-style: normal;
   font-weight: 400;
   line-height: 180%;
-  letter-spacing: -0.48px;
+  letter-spacing: 0.2px;
 }
 .write-word-count {
   text-align: right;
@@ -200,7 +203,7 @@ input[type="date"] {
   font-style: normal;
   font-weight: 600;
   line-height: 180%;
-  letter-spacing: -0.36px;
+  letter-spacing: 0.2px;
 }
 
 .write-addpic {
@@ -227,5 +230,5 @@ input[type="date"] {
   font-style: normal;
   font-weight: 600;
   line-height: 180%;
-  letter-spacing: -0.36px;
+  letter-spacing: 0.2px;
 }

@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import "./assets/fonts/font.css";
 import Main from "./pages/Main/Main.jsx";
 import Splash from "./pages/Splash/Splash.jsx";
 import Login from "./pages/Login/Login.jsx";

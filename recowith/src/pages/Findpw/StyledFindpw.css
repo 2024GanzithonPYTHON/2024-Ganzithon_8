@@ -17,22 +17,20 @@
   font-size: 24px;
   text-align: center;
   font-style: normal;
-  font-weight: 500;
+  font-weight: 700;
   line-height: 171%;
-  letter-spacing: -0.72px;
+  letter-spacing: 0.72px;
   margin-right: 20px;
 }
 .findpw-greeting {
   color: #938a7e;
   text-align: center;
-
-  /* 본문 01 */
   font-family: "Pretendard Variable";
   font-size: 14px;
   font-style: normal;
   font-weight: 400;
   line-height: 140%;
-  letter-spacing: -0.42px;
+  letter-spacing: 0.2px;
   margin-right: 20px;
 }
 .findpw-form {
@@ -46,7 +44,7 @@
   font-family: "Pretendard Variable";
   font-size: 12px;
   font-style: normal;
-  font-weight: 400;
+  font-weight: 700;
   line-height: 180%;
 }
 
@@ -61,10 +59,10 @@
   outline: none;
   padding-left: 10px;
   margin-bottom: 10px;
-  color: #cbc8c3;
+  color: #938a7e;
   font-family: "Pretendard Variable";
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 400;
   line-height: 180%;
 }
 
@@ -72,7 +70,7 @@
   color: #cbc8c3;
   font-family: "Pretendard Variable";
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 400;
   line-height: 180%;
 }
 

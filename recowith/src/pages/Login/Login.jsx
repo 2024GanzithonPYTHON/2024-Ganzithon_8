@@ -12,7 +12,10 @@ function Login() {
         <div className="login-form">
           <div className="login-greeting">
             <span className="login-greet1">안녕하세요😊</span>
-            <span>RECORD WITH</span> 입니다.
+            <span style={{ fontFamily: "Aboreto", fontWeight: "600" }}>
+              RECORD WITH
+            </span>{" "}
+            입니다.
           </div>
           <div className="login-wp">
             <span className="login-email">이메일</span>
@@ -23,6 +26,7 @@ function Login() {
             />
             <span className="login-pw">비밀번호</span>
             <input
+              type="password"
               className="login-input"
               placeholder="비밀번호를 입력해 주세요."
             />

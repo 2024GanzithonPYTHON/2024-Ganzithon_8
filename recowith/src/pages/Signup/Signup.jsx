@@ -29,7 +29,7 @@ function Signup() {
               placeholder="다시 한번 입력해 주세요."
             />
           </div>
-          <button className="signup-btn">회원가입</button>
+          <button className="signup-btn">가입하기</button>
         </div>
       </div>
     </>

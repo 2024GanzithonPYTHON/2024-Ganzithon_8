@@ -1,6 +1,11 @@
 import style from "./StyledSplash.css";
+import { useNavigate } from "react-router-dom";
 
 function Splash() {
+  const navigate = useNavigate();
+  function GoSignup() {
+    navigate("/signup");
+  }
   return (
     <>
       <div className="container">
@@ -14,7 +19,14 @@ function Splash() {
           alt="splash"
           className="splash-logo"
         />{" "}
-        <button className="btn-start">시작하기</button>
+        <button
+          className="btn-start"
+          onClick={() => {
+            GoSignup();
+          }}
+        >
+          시작하기
+        </button>
       </div>
     </>
   );

@@ -1,7 +1,7 @@
 import styles from "./StyledMain.css";
 import { useState } from "react";
+import moment from "moment";
 import Calendar from "react-calendar";
-import "react-calendar/dist/Calendar.css";
 import Year from "react-calendar/dist/esm/DecadeView/Year.js";
 
 function Main() {
@@ -54,9 +54,41 @@ function Main() {
           </div>
         </div>
         <div>
-          <Calendar locale="en" next2Label={null} prev2Label={null} />
+          <Calendar
+            locale="en"
+            next2Label={null}
+            prev2Label={null}
+            formatDay={(locale, date) => moment(date).format("D")}
+            formatYear={(locale, date) => moment(date).format("YYYY")}
+            formatMonthYear={(locale, date) => moment(date).format("YYYY MM월")}
+            calendarType="gregory"
+            minDetail="year"
+          />
         </div>
-        <div>{/*메인 바*/}</div>
+        <div className="main-nav">
+          <div className="main-nav-wp">
+            <img
+              src={`${process.env.PUBLIC_URL}/img/main-com.png`}
+              alt="main"
+              className="main-icon"
+            />
+            <img
+              src={`${process.env.PUBLIC_URL}/img/main-write.png`}
+              alt="write"
+              className="main-icon"
+            />
+            <img
+              src={`${process.env.PUBLIC_URL}/img/main-home.png`}
+              alt="home"
+              className="main-icon"
+            />
+            <img
+              src={`${process.env.PUBLIC_URL}/img/main-chart.png`}
+              alt="chart"
+              className="main-icon"
+            />
+          </div>
+        </div>
       </div>
     </div>
   );
