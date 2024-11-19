@@ -4,10 +4,9 @@ import './NavigationBar.css';
 
 const NavigationBar = () => {
   const navigate = useNavigate();
-  const location = useLocation(); // 현재 라우트 정보 가져오기
-  const [activePage, setActivePage] = useState(location.pathname); // 초기값: 현재 라우트 경로
+  const location = useLocation(); 
+  const [activePage, setActivePage] = useState(location.pathname); 
 
-  // 라우트 변경 시 activePage 업데이트
   useEffect(() => {
     setActivePage(location.pathname);
   }, [location.pathname]);
@@ -24,8 +23,8 @@ const NavigationBar = () => {
       {navItems.map((item) => (
         <div
           key={item.path}
-          onClick={() => navigate(item.path)} // 클릭 시 바로 라우팅
-          className={`nav-item ${activePage === item.path ? 'active' : ''}`} // 활성화된 아이템에 클래스 추가
+          onClick={() => navigate(item.path)} 
+          className={`nav-item ${activePage === item.path ? 'active' : ''}`} 
         >
           <img
             src={
@@ -42,4 +41,4 @@ const NavigationBar = () => {
   );
 };
 
-export default NavigationBar;
+export default NavigationBar;  

@@ -9,6 +9,7 @@
     background-size: cover;
     background-position: center;
     overflow: hidden;
+    font-family: 'Pretendard Variable', sans-serif; /* Í∏∞Î≥∏ Ìè∞Ìä∏ */
 }
 
 .on-the-record {
@@ -43,6 +44,7 @@
 }
 
 .cards-container {
+    font-family: "Pretendard Variable";
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -58,7 +60,7 @@
     border-radius: 15px;
     padding: 10px;
     cursor: pointer;
-    font-family: 'Arial', sans-serif;
+    font-family: "Pretendard Variable";
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -173,9 +175,9 @@
 
 .top-right-button {
     position: absolute;
-    top: 50px; /* ?ÉÅ?ã® ?ó¨Î∞? */
-    right: 20px; /* ?ö∞Ï∏? ?ó¨Î∞? */
-    cursor: pointer; /* ?Å¥Î¶? Í∞??ä• ?ëú?ãú */
+    top: 50px; 
+    right: 20px;
+    cursor: pointer; 
     display: flex;
     z-index: 100; 
     align-items: center;
@@ -185,7 +187,7 @@
   }
   
   .top-right-button:hover {
-    transform: scale(1.1); /* ?ò∏Î≤? ?ãú ?ïΩÍ∞? ?ôï??? */
+    transform: scale(1.1); 
     transition: transform 0.2s ease;
   }
   

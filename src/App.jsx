@@ -7,6 +7,7 @@ import DiaryCompare from './pages/DiaryCompare/DiaryCompare';
 import DiaryReview from './pages/DiaryReview/DiaryReview';
 import RecordSee from './pages/Community/RecordSee';
 
+
 function App() {
   return (
     <Router>

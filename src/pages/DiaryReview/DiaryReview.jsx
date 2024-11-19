@@ -1,58 +1,149 @@
 import React, { useState, useEffect } from 'react';
 import './DiaryReview.css';
 import NavigationBar from '../../components/NavigationBar/NavigationBar';
+import LineChart from "./LineChart";
 import HihiImage from '../../components/Images/hihi.png';
 
 const DiaryReview = () => {
-  const [viewMode, setViewMode] = useState('monthly'); // 'monthly' 또는 'yearly'
-  const [selectedDate, setSelectedDate] = useState(''); // 선택된 월/연도
-  const [isPopupOpen, setIsPopupOpen] = useState(false); // 팝업 상태
+  const [viewMode, setViewMode] = useState('monthly'); 
+  const [selectedDate, setSelectedDate] = useState(''); 
+  const [labels, setLabels] = useState([]); 
+  const [data, setData] = useState([]); 
+  const [startIndex, setStartIndex] = useState(0); 
+  const [isPopupOpen, setIsPopupOpen] = useState(false); 
   const [rating, setRating] = useState(3);
   const [comment, setComment] = useState('');
 
-  // 현재 날짜를 가져와 초기 값 설정
   useEffect(() => {
-    const currentDate = new Date();
-    const currentYear = currentDate.getFullYear();
-    const currentMonth = currentDate.getMonth() + 1; // JavaScript의 월은 0부터 시작
-    setSelectedDate(`${currentYear}년 ${currentMonth}월`); // 기본값 설정
+    initializeGraph();
   }, []);
+
+  const initializeGraph = () => {
+    const currentDate = new Date();
+    if (viewMode === 'monthly') {
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth() + 1;
+      setSelectedDate(`${year}년 ${month}월`);
+      updateGraphData('monthly', new Date(year, month - 1, 1), 0);
+    } else {
+      const year = currentDate.getFullYear();
+      setSelectedDate(`${year}년`);
+      updateGraphData('yearly', new Date(year, 0, 1), 0);
+    }
+  };
+
+  const updateGraphData = (mode, baseDate, index) => {
+    const currentDate = new Date();
+
+    if (mode === 'monthly') {
+      const days = [];
+      const ratings = [];
+      const year = baseDate.getFullYear();
+      const month = baseDate.getMonth();
+      const targetDate = new Date(year, month, 1 + index * 6);
+      const lastDayOfMonth = new Date(year, month + 1, 0).getDate();
+
+      for (let i = 0; i < 6; i++) {
+        const day = targetDate.getDate() + i;
+        if (day > lastDayOfMonth || targetDate > currentDate) break; 
+        days.push(`${month + 1}/${day}`);
+        ratings.push(Math.floor(Math.random() * 5) + 1); 
+      }
+      setLabels(days);
+      setData(ratings);
+    } else if (mode === 'yearly') {
+      const months = [];
+      const ratings = [];
+      const year = baseDate.getFullYear();
+      const targetMonth = index * 6;
+
+      for (let i = 0; i < 6; i++) {
+        const month = targetMonth + i;
+        if (month > 11 || new Date(year, month, 1) > currentDate) break;
+        months.push(`${month + 1}`);
+        ratings.push(Math.floor(Math.random() * 5) + 1); 
+      }
+      setLabels(months);
+      setData(ratings);
+    }
+  };
+
+  const handlePrevious = () => {
+    if (viewMode === 'monthly') {
+      if (startIndex > 0) {
+        setStartIndex(startIndex - 1);
+        const [year, month] = selectedDate.replace('년', '').replace('월', '').split(' ').map(Number);
+        updateGraphData('monthly', new Date(year, month - 1, 1), startIndex - 1);
+      }
+    } else if (viewMode === 'yearly') {
+      if (startIndex > 0) {
+        setStartIndex(startIndex - 1);
+        const [year] = selectedDate.replace('년', '').split(' ').map(Number);
+        updateGraphData('yearly', new Date(year, 0, 1), startIndex - 1);
+      }
+    }
+  };
+
+  const handleNext = () => {
+    const currentDate = new Date();
+    if (viewMode === 'monthly') {
+      const [year, month] = selectedDate.replace('년', '').replace('월', '').split(' ').map(Number);
+      const lastDayOfMonth = new Date(year, month, 0).getDate();
+      if (startIndex * 6 + 6 < lastDayOfMonth) {
+        setStartIndex(startIndex + 1);
+        updateGraphData('monthly', new Date(year, month - 1, 1), startIndex + 1);
+      }
+    } else if (viewMode === 'yearly') {
+      const [year] = selectedDate.replace('년', '').split(' ').map(Number);
+      if (startIndex < 1) {
+        setStartIndex(startIndex + 1);
+        updateGraphData('yearly', new Date(year, 0, 1), startIndex + 1);
+      }
+    }
+  };
 
   const handleViewChange = (mode) => {
     const currentDate = new Date();
-    const currentYear = currentDate.getFullYear();
-    const currentMonth = currentDate.getMonth() + 1;
-
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth() + 1;
+  
     if (mode === 'monthly') {
-      setSelectedDate(`${currentYear}년 ${currentMonth}월`);
+      setSelectedDate(`${year}년 ${month}월`);
+      setStartIndex(0);
+      updateGraphData('monthly', new Date(year, month - 1, 1), 0);
     } else if (mode === 'yearly') {
-      setSelectedDate(`${currentYear}년`);
+      setSelectedDate(`${year}년`);
+      setStartIndex(0);
+      updateGraphData('yearly', new Date(year, 0, 1), 0);
     }
-
+  
     setViewMode(mode);
   };
-
-  const handleRatingChange = (event) => {
-    const value = event.target.value;
-    setRating(value);
-  };
-
-  const handleCommentChange = (event) => {
-    setComment(event.target.value);
-  };
-
-  const togglePopup = () => {
-    setIsPopupOpen(!isPopupOpen); // 팝업 열고 닫기
-  };
+  
 
   const selectDate = (date) => {
-    setSelectedDate(date);
-    setIsPopupOpen(false); // 선택 후 팝업 닫기
+    const [year, month] = date.replace('년', '').replace('월', '').split(' ').map(Number);
+  
+    if (viewMode === 'monthly') {
+      setSelectedDate(`${year}년 ${month}월`);
+      setStartIndex(0);
+      updateGraphData('monthly', new Date(year, month - 1, 1), 0);
+    } else if (viewMode === 'yearly') {
+      setSelectedDate(`${year}년`);
+      setStartIndex(0);
+      updateGraphData('yearly', new Date(year, 0, 1), 0);
+    }
+  
+    setIsPopupOpen(false);
+  };
+  
+
+  const togglePopup = () => {
+    setIsPopupOpen(!isPopupOpen);
   };
 
   return (
     <div className="diary-review-container">
-      {/* 상단 영역 */}
       <h1 className="diary-review-title">돌아보기</h1>
       <div className="diary-review-view-mode">
         <button
@@ -68,8 +159,6 @@ const DiaryReview = () => {
           연간
         </button>
       </div>
-
-      {/* 그래프 제목 및 선택 버튼 */}
       <div className="graph-title-container">
         <h2 className="graph-title">{selectedDate}</h2>
         <button className="svg-button" onClick={togglePopup}>
@@ -91,12 +180,24 @@ const DiaryReview = () => {
       </div>
 
       <div className="diary-review-content">
-        {/* 그래프 카드 */}
+        
         <div className="graph-card">
-          <img src={HihiImage} alt="Graph" className="graph-image" />
-        </div>
+        <button className="svg-button" onClick={handlePrevious}>
+        <svg width="9" height="14" viewBox="0 0 9 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M8 1L2 7L8 13" stroke="#938A7E" stroke-width="2" stroke-linecap="round"/>
+</svg>
 
-        {/* 최고의 날 하이라이트 */}
+        </button>
+          <LineChart labels={labels} data={data} />
+          <button className="svg-button" onClick={handleNext}>
+          <svg width="9" height="14" viewBox="0 0 9 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M1 13L7 7L0.999999 1" stroke="#938A7E" stroke-width="2" stroke-linecap="round"/>
+</svg>
+
+        </button>
+        </div>
+        
+
         <h2 className="best-day-title">최고의 날 하이라이트</h2>
         <div className="diary-card">
           <div className="diary-header">
@@ -109,7 +210,8 @@ const DiaryReview = () => {
             </div>
           </div>
           <p className="diary-content">
-            어제는 기분이 참 이상한 날이었다. 작지만 소중한 위로를 받으면서 큰 힘을 얻었던 기억이 난다. 오늘의 나도 더 좋은 기분으로 하루를 시작할 수 있기를...
+            어제는 기분이 참 이상한 날이었다. 작지만 소중한 위로를 받으면서 큰 힘을 얻었던 기억이 난다.
+            오늘의 나도 더 좋은 기분으로 하루를 시작할 수 있기를...
           </p>
           <div className="rating-value">
             <span className="rating-number">{rating}</span>
@@ -123,19 +225,17 @@ const DiaryReview = () => {
             max="5"
             step="1"
             value={rating}
-            onChange={handleRatingChange}
+            onChange={(e) => setRating(e.target.value)}
             className="rating-slider"
           />
           <textarea
             placeholder="점수에 담긴 오늘의 이야기를 들려주세요."
             className={`rating-comment ${comment ? 'active' : ''}`}
             value={comment}
-            onChange={handleCommentChange}
+            onChange={(e) => setComment(e.target.value)}
           />
         </div>
       </div>
-
-      {/* 팝업 창 */}
       {isPopupOpen && (
         <div className="popup-container">
           <div className="popup">
@@ -167,7 +267,6 @@ const DiaryReview = () => {
           </div>
         </div>
       )}
-
       <NavigationBar />
     </div>
   );

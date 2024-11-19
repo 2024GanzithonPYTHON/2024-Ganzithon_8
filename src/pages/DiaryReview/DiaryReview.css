@@ -107,13 +107,21 @@
   }
   
   .graph-card {
-    background: white;
-    border-radius: 10px;
-    padding: 20px;
-    margin-bottom: 20px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    text-align: center;
+    background: white; /* 카드 배경색 */
+    border: 1px solid #ccc; /* 테두리 추가 */
+    height: 273px; /* 카드 높이 */
+    width: 100%; /* 카드 너비 */
+    border-radius: 10px; /* 둥근 모서리 */
+    padding: 20px; /* 안쪽 여백 */
+    margin-bottom: 20px; /* 카드 간 간격 */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 그림자 효과 */
+    display: flex; /* Flexbox로 전환 */
+    justify-content: center; /* 가로 가운데 정렬 */
+    align-items: center; /* 세로 가운데 정렬 */
+    text-align: center; /* 텍스트 정렬 */
+    box-sizing: border-box; /* 패딩 포함 크기 계산 */
   }
+  
   
   .graph-image {
     width: 100%;

@@ -5,21 +5,21 @@ import BackButton from '../../components/BackButton/BackButton';
 import HihiImage from '../../components/Images/hihi.png';
 
 const DiaryCompare = () => {
-  const [rating, setRating] = useState(1); // rating 상태 정의
-  const [comment, setComment] = useState(''); // 텍스트 상태 정의
+  const [rating, setRating] = useState(1); 
+  const [comment, setComment] = useState(''); 
   const navigate = useNavigate();
  
   const handleRatingChange = (event) => {
-    const value = event.target.value; // 현재 슬라이더 값 가져오기
-    setRating(value); // 상태 업데이트
+    const value = event.target.value; 
+    setRating(value); 
 
-    // 슬라이더 배경 동적 업데이트
+    
     const slider = event.target;
     slider.style.background = `linear-gradient(to right, #D2C5B2 ${(value - 1) * 25}%, #938A7E ${(value - 1) * 25}%)`;
   };
 
   const handleCommentChange = (event) => {
-    setComment(event.target.value); // 텍스트 상태 업데이트
+    setComment(event.target.value); 
   };
 
   return (
@@ -87,7 +87,7 @@ const DiaryCompare = () => {
         </div>
         <textarea
           placeholder="점수에 담긴 오늘의 이야기를 들려주세요."
-          className={`rating-comment ${comment ? 'active' : ''}`} // 입력 상태에 따라 클래스 추가
+          className={`rating-comment ${comment ? 'active' : ''}`} 
           value={comment}
           onChange={handleCommentChange}
         />
