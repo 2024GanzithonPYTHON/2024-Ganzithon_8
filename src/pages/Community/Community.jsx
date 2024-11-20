@@ -57,9 +57,27 @@ const Card = ({ card, delay }) => {
     setIsExpanded(!isExpanded);
   };
 
-  const toggleLike = (e) => {
+  const toggleLike = async (e) => {
     e.stopPropagation();
-    setIsLiked(!isLiked);
+    setIsLiked(!isLiked); // 하트버튼 강제 업데이트인데 나중에 api 백엔드랑 연동되면 지워도 될듯
+
+    const url = isLiked ? `/unlike/${card.id}` : `/like/${card.id}`;
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        setIsLiked(!isLiked); // 상태 변경
+      } else {
+        console.error(`Failed to ${isLiked ? 'unlike' : 'like'} the post.`);
+      }
+    } catch (error) {
+      console.error(`Error during ${isLiked ? 'unlike' : 'like'} API call:`, error);
+    }
   };
 
   return (

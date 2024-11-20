@@ -111,7 +111,7 @@ const LineChart = ({ labels, data }) => {
     return () => {
       destroyChart();
     };
-  }, [labels, data]); // labels와 data 변경 시 그래프 업데이트
+  }, [labels, data]);
 
   return (
     <div className="chart-container">
