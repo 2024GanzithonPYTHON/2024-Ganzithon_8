@@ -88,95 +88,136 @@ const Card = ({ card, delay }) => {
   );
 };
 
-export default RecordSee;    */
+export default RecordSee;    
+*/
 
-import React, { useState, useEffect } from 'react';
-import NavigationBar from '../../components/NavigationBar/NavigationBar';
-import BackButton from '../../components/BackButton/BackButton';
-import './RecordSee.css';
-import HihiImage from '../../components/Images/hihi.png';
+import React, { useState, useEffect } from "react";
+import NavigationBar from "../../components/NavigationBar/NavigationBar";
+import BackButton from "../../components/BackButton/BackButton";
+import "./RecordSee.css";
+import HihiImage from "../../components/Images/hihi.png";
 
 const RecordSee = () => {
-  const [likedCards, setLikedCards] = useState([]);
+  const [likedCards, setLikedCards] = useState([]); 
+  const [loading, setLoading] = useState(true); 
+  const [error, setError] = useState(""); 
 
-  // 좋아요된 게시물 가져오기
+ 
   const fetchLikedCards = async () => {
     try {
-      const response = await fetch('/api/liked-cards'); // API 엔드포인트 수정
+      setLoading(true); 
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/diary/user/like`, 
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
       if (response.ok) {
-        const data = await response.json();
-        setLikedCards(data); // 서버로부터 받은 데이터 설정
+        const result = await response.json();
+        const mappedData = result.data.map((item) => ({
+          id: item.id,
+          title: item.title,
+          date: item.createdAt, 
+          content: item.content,
+          imageUrl: item.diaryImage || HihiImage, 
+        }));
+        setLikedCards(mappedData); 
       } else {
-        console.error('Failed to fetch liked cards');
+        throw new Error("Failed to fetch liked cards.");
       }
     } catch (error) {
-      console.error('Error fetching liked cards:', error);
+      console.error("Error fetching liked cards:", error);
+      setError("좋아요한 게시물을 불러오는 데 실패했습니다.");
+    } finally {
+      setLoading(false); 
     }
   };
 
   useEffect(() => {
-    fetchLikedCards(); // 컴포넌트 마운트 시 API 호출
+    fetchLikedCards(); 
   }, []);
+
+
+  const handleUnlike = async (cardId) => {
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/unlike/${cardId}`, 
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.ok) {
+        setLikedCards((prevCards) => prevCards.filter((card) => card.id !== cardId));
+      } else {
+        console.error("Failed to unlike the card.");
+      }
+    } catch (error) {
+      console.error("Error unliking the card:", error);
+    }
+  };
 
   return (
     <div className="recordsee-container">
       <BackButton />
       <h1 className="record-see">레코드 모아보기</h1>
       <div className="scrollable-cards-container">
-        <div className="cards-container">
-          {likedCards.length > 0 ? (
-            likedCards.map((card, index) => (
-              <Card key={card.id} card={card} delay={index * 0.2} />
-            ))
-          ) : (
-            <p className="no-liked-cards">좋아요한 게시물이 없습니다.</p>
-          )}
-        </div>
+        {loading ? (
+          <p>로딩 중...</p>
+        ) : error ? (
+          <p className="error-message">{error}</p>
+        ) : likedCards.length > 0 ? (
+          <div className="cards-container">
+            {likedCards.map((card, index) => (
+              <Card
+                key={card.id}
+                card={card}
+                delay={index * 0.2}
+                onUnlike={handleUnlike}
+              />
+            ))}
+          </div>
+        ) : (
+          <p className="no-liked-cards">좋아요한 게시물이 없습니다.</p>
+        )}
       </div>
       <NavigationBar />
     </div>
   );
 };
 
-const Card = ({ card, delay }) => {
+const Card = ({ card, delay, onUnlike }) => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [isLiked, setIsLiked] = useState(true); // 좋아요 상태 유지
+  const [isLiked, setIsLiked] = useState(true); 
 
   const toggleExpand = () => {
     setIsExpanded(!isExpanded);
   };
 
-  const toggleLike = async (e) => {
+  const toggleLike = (e) => {
     e.stopPropagation();
-
-    const url = isLiked ? `/unlike/${card.id}` : `/like/${card.id}`;
-    try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (response.ok) {
-        setIsLiked(!isLiked); // 상태 업데이트
-      } else {
-        console.error(`Failed to ${isLiked ? 'unlike' : 'like'} the post.`);
-      }
-    } catch (error) {
-      console.error(`Error during ${isLiked ? 'unlike' : 'like'} API call:`, error);
+    if (isLiked) {
+      onUnlike(card.id); 
     }
+    setIsLiked(!isLiked); 
   };
 
   return (
     <div
-      className={`card ${isExpanded ? 'expanded' : ''}`}
+      className={`card ${isExpanded ? "expanded" : ""}`}
       onClick={toggleExpand}
       style={{ animationDelay: `${delay}s` }}
     >
       <div className="card-content-wrapper">
         <div className="record-image-wrapper">
-          <img src={HihiImage} alt="Record" className="record-image" />
+          <img src={card.imageUrl || HihiImage} alt="Record" className="record-image" />
         </div>
         <div className="card-text">
           <div className="card-header">
@@ -188,10 +229,10 @@ const Card = ({ card, delay }) => {
       <div
         className="card-content"
         style={{
-          maxHeight: isExpanded ? '500px' : '0',
-          opacity: '1',
-          overflow: 'hidden',
-          transition: 'max-height 1.0s ease',
+          maxHeight: isExpanded ? "500px" : "0",
+          opacity: "1",
+          overflow: "hidden",
+          transition: "max-height 1.0s ease",
         }}
       >
         {card.content}
@@ -200,7 +241,7 @@ const Card = ({ card, delay }) => {
         <div className="card-line"></div>
         {isExpanded && (
           <button
-            className={`heart-button ${isLiked ? 'active' : ''}`}
+            className={`heart-button ${isLiked ? "active" : ""}`}
             onClick={toggleLike}
           >
             ❤
@@ -212,3 +253,5 @@ const Card = ({ card, delay }) => {
 };
 
 export default RecordSee;
+
+

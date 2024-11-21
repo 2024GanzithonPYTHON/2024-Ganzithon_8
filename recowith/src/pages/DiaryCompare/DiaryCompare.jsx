@@ -5,109 +5,6 @@ import BackButton from '../../components/BackButton/BackButton';
 import HihiImage from '../../components/Images/hihi.png';
 
 const DiaryCompare = () => {
-  const [rating, setRating] = useState(1); 
-  const [comment, setComment] = useState(''); 
-  const navigate = useNavigate();
- 
-  const handleRatingChange = (event) => {
-    const value = event.target.value; 
-    setRating(value); 
-
-    
-    const slider = event.target;
-    slider.style.background = `linear-gradient(to right, #D2C5B2 ${(value - 1) * 25}%, #938A7E ${(value - 1) * 25}%)`;
-  };
-
-  const handleCommentChange = (event) => {
-    setComment(event.target.value); 
-  };
-
-  return (
-    <div className="diary-compare-container">
-      <BackButton />
-      <h2 className="diary-compare-title">어제와 오늘</h2>
-      <p className="diary-compare-subtitle">어제의 나와 오늘의 나를 비교해 보세요.</p>
-      
-      <div className="diary-card">
-  <div className="diary-header">
-    <div className="record-image-wrapper">
-      <img src={HihiImage} alt="Record" className="record-image" />
-    </div>
-    <div className="diary-title-section">
-      <h3 className="diary-date">2024.11.05</h3>
-      <h4 className="diary-title">작은 위로, 큰 힘</h4>
-    </div>
-  </div>
-  <p className="diary-content">
-    어제는 기분이 참 이상한 날이었다. 작지만 소중한 위로를 받으면서
-    큰 힘을 얻었던 기억이 난다. 오늘의 나도 더 좋은 기분으로 하루를 시작할 수 있기를...
-  </p>
-</div>
-
-
-<div className="diary-card">
-  <div className="diary-header">
-    <div className="record-image-wrapper">
-      <img src={HihiImage} alt="Record" className="record-image" />
-    </div>
-    <div className="diary-title-section">
-      <h3 className="diary-date">2024.11.05</h3>
-      <h4 className="diary-title">작은 위로, 큰 힘</h4>
-    </div>
-  </div>
-  <p className="diary-content">
-    어제는 기분이 참 이상한 날이었다. 작지만 소중한 위로를 받으면서
-    큰 힘을 얻었던 기억이 난다. 오늘의 나도 더 좋은 기분으로 하루를 시작할 수 있기를...
-  </p>
-</div>
-
-      <div className="rating-section">
-        <label htmlFor="rating">오늘의 점수를 매겨보세요.</label>
-        <div className="rating-value">
-          <span className="rating-number">{rating}</span>
-          <span className="rating-slash">/</span>
-          <span className="rating-total">5</span>
-        </div>
-        <input
-          type="range"
-          id="rating"
-          min="1"
-          max="5"
-          step="1"
-          value={rating}
-          onChange={handleRatingChange}
-          className="rating-slider"
-        />
-        <div className="rating-labels">
-          <span>1</span>
-          <span>2</span>
-          <span>3</span>
-          <span>4</span>
-          <span>5</span>
-        </div>
-        <textarea
-          placeholder="점수에 담긴 오늘의 이야기를 들려주세요."
-          className={`rating-comment ${comment ? 'active' : ''}`} 
-          value={comment}
-          onChange={handleCommentChange}
-        />
-      </div>
-
-      <button className="submit-button" onClick={() => navigate('/ai-message')}>완료하기</button>
-    </div>
-  );
-};
-
-export default DiaryCompare;
-*/
-
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import './DiaryCompare.css';
-import BackButton from '../../components/BackButton/BackButton';
-import HihiImage from '../../components/Images/hihi.png';
-
-const DiaryCompare = () => {
   const [rating, setRating] = useState(1);
   const [comment, setComment] = useState('');
   const navigate = useNavigate();
@@ -218,6 +115,181 @@ const DiaryCompare = () => {
       </div>
 
       <button className="submit-button" onClick={handleSubmit}>완료하기</button>
+    </div>
+  );
+};
+
+export default DiaryCompare; */
+
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import "./DiaryCompare.css";
+import BackButton from "../../components/BackButton/BackButton";
+
+const DiaryCompare = () => {
+  const [yesterdayDiary, setYesterdayDiary] = useState(null);
+  const [todayDiary, setTodayDiary] = useState(null);
+  const [rating, setRating] = useState(1);
+  const [comment, setComment] = useState("");
+  const navigate = useNavigate();
+  const userId = 1; // 유저 ID는 실제로 동적으로 설정해야 할 수 있습니다.
+
+  const getDate = (offset) => {
+    const date = new Date();
+    date.setDate(date.getDate() + offset);
+    return date.toISOString().split("T")[0];
+  };
+
+  const fetchDiary = async (date, setDiary) => {
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/diary/${userId}/${date}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        setDiary(result.data.diaries[0]);
+      } else {
+        console.error(`Failed to fetch diary for date ${date}`);
+      }
+    } catch (error) {
+      console.error(`Error fetching diary for date ${date}:`, error);
+    }
+  };
+
+  useEffect(() => {
+    const yesterday = getDate(-1);
+    const today = getDate(0);
+
+    fetchDiary(yesterday, setYesterdayDiary);
+    fetchDiary(today, setTodayDiary);
+  }, []);
+
+  const handleRatingChange = (event) => {
+    const value = event.target.value;
+    setRating(value);
+
+    const slider = event.target;
+    slider.style.background = `linear-gradient(to right, #D2C5B2 ${(value - 1) * 25}%, #938A7E ${(value - 1) * 25}%)`;
+  };
+
+  const handleCommentChange = (event) => {
+    setComment(event.target.value);
+  };
+
+  const handleSubmit = async () => {
+    if (!todayDiary) {
+      console.error("No diary found for today.");
+      return;
+    }
+
+    const postData = {
+      score: parseInt(rating), // 점수는 정수로 변환
+      review: comment,
+    };
+
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/score/${todayDiary.id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(postData),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log("Score and review saved successfully:", result);
+        // 성공 시 다음 페이지로 이동
+        navigate("/ai-message");
+      } else {
+        console.error("Failed to save score and review.");
+      }
+    } catch (error) {
+      console.error("Error while saving score and review:", error);
+    }
+  };
+
+  return (
+    <div className="diary-compare-container">
+      <BackButton />
+      <h2 className="diary-compare-title">어제와 오늘</h2>
+      <p className="diary-compare-subtitle">어제의 나와 오늘의 나를 비교해 보세요.</p>
+
+      {/* 어제의 일기 */}
+      {yesterdayDiary ? (
+        <div className="diary-card">
+          <div className="diary-header">
+            <div className="record-image-wrapper">
+              <img src={yesterdayDiary.diaryImage} alt="Record" className="record-image" />
+            </div>
+            <div className="diary-title-section">
+              <h3 className="diary-date">{yesterdayDiary.createdAt}</h3>
+              <h4 className="diary-title">{yesterdayDiary.title}</h4>
+            </div>
+          </div>
+          <p className="diary-content">{yesterdayDiary.content}</p>
+        </div>
+      ) : (
+        <p>어제의 일기를 불러오는 중...</p>
+      )}
+
+      {/* 오늘의 일기 */}
+      {todayDiary ? (
+        <div className="diary-card">
+          <div className="diary-header">
+            <div className="record-image-wrapper">
+              <img src={todayDiary.diaryImage} alt="Record" className="record-image" />
+            </div>
+            <div className="diary-title-section">
+              <h3 className="diary-date">{todayDiary.createdAt}</h3>
+              <h4 className="diary-title">{todayDiary.title}</h4>
+            </div>
+          </div>
+          <p className="diary-content">{todayDiary.content}</p>
+        </div>
+      ) : (
+        <p>오늘의 일기를 불러오는 중...</p>
+      )}
+
+      <div className="rating-section">
+        <p className="rating-title">오늘의 점수를 매겨보세요.</p>
+        <div className="rating-value">
+          <span className="rating-number">{rating}</span>
+          <span className="rating-slash">/</span>
+          <span className="rating-total">5</span>
+        </div>
+        <input
+          type="range"
+          id="rating"
+          min="1"
+          max="5"
+          step="1"
+          value={rating}
+          onChange={handleRatingChange}
+          className="rating-slider"
+        />
+        <div className="rating-labels">
+          <span>1</span>
+          <span>2</span>
+          <span>3</span>
+          <span>4</span>
+          <span>5</span>
+        </div>
+        <textarea
+          placeholder="점수에 담긴 오늘의 이야기를 들려주세요."
+          className={`rating-comment ${comment ? "active" : ""}`}
+          value={comment}
+          onChange={handleCommentChange}
+        />
+      </div>
+
+      <button className="submit-button" onClick={handleSubmit}>
+        완료하기
+      </button>
     </div>
   );
 };
