@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import styles from "./StyledMain.css";
 import Calendar from "react-calendar";
@@ -13,9 +13,17 @@ function Main() {
   const [selectedDate, setSelectedDate] = useState(null);
   const [score, setScore] = useState(1);
 
+  useEffect(() => {
+    const percentage = ((sliderValue - 1) / (5 - 1)) * 100;
+    document
+      .querySelector(".main-score-range")
+      .style.setProperty("--value", `${percentage}%`);
+  }, [sliderValue]);
+
   const handleSliderChange = (event) => {
     const value = event.target.value;
     setSliderValue(value);
+    setScore(value);
     const percentage =
       ((value - event.target.min) / (event.target.max - event.target.min)) *
       100;
@@ -81,7 +89,7 @@ function Main() {
         <div className="main-score-wp">
           <div className="main-date">2024년 11월 2일 점수</div>
           <div className="main-score">
-            <span className="main-yes-score">4/</span>5
+            <span className="main-yes-score">{score}/</span>5
           </div>
           <div className="rangescroller">
             <input
@@ -91,6 +99,9 @@ function Main() {
               max="5"
               value={sliderValue}
               onChange={handleSliderChange}
+              style={{
+                "--value": `${((sliderValue - 1) / (5 - 1)) * 100}%`,
+              }}
             />
           </div>
         </div>

@@ -9,6 +9,7 @@ function Write() {
   const [date, setDate] = useState("");
   const [images, setImages] = useState([]);
   const [wordCount, setWordCount] = useState(0);
+
   const togglePrivacy = () => {
     setIsPublic((prev) => {
       const newState = !prev;
@@ -20,15 +21,16 @@ function Write() {
   const handleImageChange = (event) => {
     const files = event.target.files;
     if (files.length <= 5) {
-      setImages(files);
+      setImages((prevImages) => [...prevImages, ...Array.from(files)]);
     } else {
       alert("이미지는 5개까지 업로드 가능합니다.");
     }
   };
 
   const handleContentChange = (event) => {
-    setContent(event.target.value);
-    setWordCount(event.target.value.length);
+    const newContent = event.target.value;
+    setContent(newContent);
+    setWordCount(newContent.length);
   };
 
   const handleSubmit = async (event) => {
@@ -135,7 +137,7 @@ function Write() {
         <div className="write-addpic">
           <img
             src={`${process.env.PUBLIC_URL}/img/write-addPic.png`}
-            alt=""
+            alt="upload image"
             style={{ height: "110px" }}
           />
           <input
@@ -149,6 +151,18 @@ function Write() {
           />
         </div>
         <div className="write-img-count">{images.length}/5개</div>
+        <div className="write-img-preview">
+          {images.length > 0 &&
+            images.map((image, index) => (
+              <div key={index} className="write-img-item">
+                <img
+                  src={URL.createObjectURL(image)}
+                  alt={`preview-${index}`}
+                  className="write-img-preview-item"
+                />
+              </div>
+            ))}
+        </div>
       </div>
     </>
   );
