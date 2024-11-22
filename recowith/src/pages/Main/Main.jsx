@@ -149,7 +149,7 @@ function Main() {
             alt="chart"
             className="main-icon"
             onClick={() => {
-              navigate("/record-see");
+              navigate("/diary-review");
             }}
           />
         </div>

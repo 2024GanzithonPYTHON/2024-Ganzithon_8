@@ -92,6 +92,7 @@ export default RecordSee;
 */
 
 import React, { useState, useEffect } from "react";
+import axios from "axios";
 import NavigationBar from "../../components/NavigationBar/NavigationBar";
 import BackButton from "../../components/BackButton/BackButton";
 import "./RecordSee.css";
@@ -100,34 +101,34 @@ import HihiImage from "../../components/Images/hihi.png";
 const RecordSee = () => {
   const [likedCards, setLikedCards] = useState([]); 
   const [loading, setLoading] = useState(true); 
-  const [error, setError] = useState(""); 
+  const [error, setError] = useState("");
 
- 
   const fetchLikedCards = async () => {
     try {
       setLoading(true); 
-      const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/diary/user/like`, 
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (response.ok) {
-        const result = await response.json();
+      console.log("Fetching liked cards..."); 
+      const response = await axios.get("/diary/user/like", {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`, 
+        },
+      });
+  
+      console.log("Response from /diary/user/like:", response.data); 
+      const result = response.data;
+      if (!result.data || !Array.isArray(result.data)) {
+        console.log("No liked posts found."); 
+        setLikedCards([]); 
+      } else {
         const mappedData = result.data.map((item) => ({
           id: item.id,
           title: item.title,
-          date: item.createdAt, 
+          date: item.createdAt,
           content: item.content,
-          imageUrl: item.diaryImage || HihiImage, 
+          imageUrl: item.diaryImage || HihiImage,
         }));
-        setLikedCards(mappedData); 
-      } else {
-        throw new Error("Failed to fetch liked cards.");
+        setLikedCards(mappedData);
+        console.log("Mapped liked cards:", mappedData); 
       }
     } catch (error) {
       console.error("Error fetching liked cards:", error);
@@ -136,26 +137,23 @@ const RecordSee = () => {
       setLoading(false); 
     }
   };
-
-  useEffect(() => {
-    fetchLikedCards(); 
-  }, []);
-
-
+  
   const handleUnlike = async (cardId) => {
     try {
-      const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/unlike/${cardId}`, 
+      const response = await axios.post(
+        `/unlike/${cardId}`,
+        {},
         {
-          method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
         }
       );
 
-      if (response.ok) {
-        setLikedCards((prevCards) => prevCards.filter((card) => card.id !== cardId));
+      if (response.status === 200) {
+        setLikedCards((prevCards) =>
+          prevCards.filter((card) => card.id !== cardId)
+        );
       } else {
         console.error("Failed to unlike the card.");
       }
@@ -164,15 +162,19 @@ const RecordSee = () => {
     }
   };
 
+  useEffect(() => {
+    fetchLikedCards(); 
+  }, []);
+
   return (
     <div className="recordsee-container">
       <BackButton />
       <h1 className="record-see">레코드 모아보기</h1>
       <div className="scrollable-cards-container">
         {loading ? (
-          <p>로딩 중...</p>
+          <p>로딩 중...</p> 
         ) : error ? (
-          <p className="error-message">{error}</p>
+          <p className="error-message">{error}</p> 
         ) : likedCards.length > 0 ? (
           <div className="cards-container">
             {likedCards.map((card, index) => (
@@ -185,7 +187,7 @@ const RecordSee = () => {
             ))}
           </div>
         ) : (
-          <p className="no-liked-cards">좋아요한 게시물이 없습니다.</p>
+          <p className="no-liked-cards">아직 좋아요를 표시한 일기가 없습니다.</p> 
         )}
       </div>
       <NavigationBar />
@@ -194,7 +196,7 @@ const RecordSee = () => {
 };
 
 const Card = ({ card, delay, onUnlike }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false); 
   const [isLiked, setIsLiked] = useState(true); 
 
   const toggleExpand = () => {
@@ -253,5 +255,3 @@ const Card = ({ card, delay, onUnlike }) => {
 };
 
 export default RecordSee;
-
-
