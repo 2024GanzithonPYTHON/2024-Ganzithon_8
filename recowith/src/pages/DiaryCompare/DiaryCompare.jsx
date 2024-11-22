@@ -145,7 +145,8 @@ const DiaryCompare = () => {
 
   const fetchDiary = async (date, setDiary) => {
     try {
-      const response = await axios.get("/diary/${userId}/${date}", {
+      const response = await axios.get( `${process.env.REACT_APP_API_URL}/diary/${userId}/${date}`, 
+        {
         headers: {
           "Content-Type": "application/json",
         },
@@ -194,7 +195,7 @@ const DiaryCompare = () => {
 
     try {
       const response = await axios.post(
-        "/score/${todayDiary.id}",
+        `${process.env.REACT_APP_API_URL}/score/${todayDiary.id}`,
         postData,
         {
           headers: {

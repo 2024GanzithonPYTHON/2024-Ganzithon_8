@@ -107,7 +107,7 @@ const RecordSee = () => {
     try {
       setLoading(true); 
       console.log("Fetching liked cards..."); 
-      const response = await axios.get("/diary/user/like", {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/diary/user/like`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("token")}`, 

@@ -21,7 +21,7 @@ const Community = () => {
 
     try {
       setLoading(true);
-      const response = await axios.get(`/diary/community`, {
+      const response = await axios.get( `${process.env.REACT_APP_API_URL}/diary/community`, {
         params: {
           page: page,
           size: 5,
