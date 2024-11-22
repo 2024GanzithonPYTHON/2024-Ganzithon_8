@@ -6,8 +6,10 @@
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
+    "axios": "^1.7.7",
     "chart.js": "^4.4.6",
     "eslint-plugin-jsx-a11y": "^6.10.2",
+    "http-proxy-middleware": "^3.0.3",
     "moment": "^2.30.1",
     "react": "^18.3.1",
     "react-calendar": "^5.1.0",
@@ -41,5 +43,6 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  }
+  },
+  "proxy": "https://lion.gyoseung.me"
 }

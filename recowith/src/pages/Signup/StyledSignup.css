@@ -29,7 +29,8 @@
 }
 
 .signup-email,
-.signup-pw {
+.signup-pw,
+.signup-name {
   color: #938a7e;
   font-family: "Pretendard Variable";
   font-size: 12px;

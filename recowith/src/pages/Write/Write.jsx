@@ -3,9 +3,72 @@ import style from "./StyledWrite.css";
 
 function Write() {
   const [isPublic, setIsPublic] = useState(false);
-
+  const [isVisible, setIsVisible] = useState(false);
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [date, setDate] = useState("");
+  const [images, setImages] = useState([]);
+  const [wordCount, setWordCount] = useState(0);
   const togglePrivacy = () => {
-    setIsPublic((prev) => !prev);
+    setIsPublic((prev) => {
+      const newState = !prev;
+      setIsVisible(newState);
+      return newState;
+    });
+  };
+
+  const handleImageChange = (event) => {
+    const files = event.target.files;
+    if (files.length <= 5) {
+      setImages(files);
+    } else {
+      alert("이미지는 5개까지 업로드 가능합니다.");
+    }
+  };
+
+  const handleContentChange = (event) => {
+    setContent(event.target.value);
+    setWordCount(event.target.value.length);
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    if (!title || !content) {
+      alert("제목과 내용은 필수 입력 사항입니다.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("content", content);
+    formData.append("createdAt", date);
+    formData.append("isVisible", isVisible);
+    for (let i = 0; i < images.length; i++) {
+      formData.append("diaryImage", images[i]);
+    }
+
+    try {
+      const response = await fetch("/api/diary/save", {
+        method: "POST",
+        body: formData,
+      });
+
+      const result = await response.json();
+      if (result.status === 0) {
+        alert("일기가 성공적으로 저장되었습니다!");
+        setTitle("");
+        setContent("");
+        setDate("");
+        setImages([]);
+        setWordCount(0);
+      } else {
+        alert(`Error: ${result.message}`);
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      alert("저장을 실패했습니다. 다시 시도해주세요!");
+    }
   };
 
   return (
@@ -19,10 +82,10 @@ function Write() {
             />
           </button>
           RECORD WITH
-          <button className="write-completeBtn">
+          <button className="write-completeBtn" onClick={handleSubmit}>
             <img
               src={`${process.env.PUBLIC_URL}/img/write-completeBtn.png`}
-              alt="back button"
+              alt="complete button"
             />
           </button>
           <div className="toggleBtn">
@@ -39,6 +102,8 @@ function Write() {
           type="text"
           placeholder="제목을 입력해 주세요."
           className="write-title-input"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
         />
         <div className="write-date">
           <img
@@ -46,7 +111,12 @@ function Write() {
             alt="calendar icon"
             style={{ position: "absolute", top: "3px", left: "2px" }}
           />
-          <input type="date" className="write-date-input" />
+          <input
+            type="date"
+            className="write-date-input"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+          />
         </div>
         <div className="write-content">
           <img
@@ -57,8 +127,10 @@ function Write() {
           <textarea
             className="write-content-input"
             placeholder="오늘 하루를 기록하세요."
+            value={content}
+            onChange={handleContentChange}
           />
-          <div className="write-word-count">0/500</div>
+          <div className="write-word-count">{wordCount}/500</div>
         </div>
         <div className="write-addpic">
           <img
@@ -73,10 +145,10 @@ function Write() {
             multiple
             className="write-addpic-btn"
             style={{ width: "110px", height: "110px" }}
-            for="uploadImg"
+            onChange={handleImageChange}
           />
         </div>
-        <div className="write-img-count">0/5개</div>
+        <div className="write-img-count">{images.length}/5개</div>
       </div>
     </>
   );

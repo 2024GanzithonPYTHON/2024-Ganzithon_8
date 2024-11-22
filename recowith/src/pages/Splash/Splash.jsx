@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 
 function Splash() {
   const navigate = useNavigate();
-  function GoSignup() {
-    navigate("/signup");
+  function Gologin() {
+    navigate("/login");
   }
   return (
     <>
@@ -22,7 +22,7 @@ function Splash() {
         <button
           className="btn-start"
           onClick={() => {
-            GoSignup();
+            Gologin();
           }}
         >
           시작하기
