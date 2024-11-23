@@ -75,11 +75,6 @@ function Write() {
         }
       });
 
-      console.log("FormData 전송 내용:");
-      for (let pair of formData.entries()) {
-        console.log(pair[0], pair[1]);
-      }
-
       const response = await axios.post("/diary/save", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
@@ -96,6 +91,9 @@ function Write() {
         setDate("");
         setImages([]);
         setWordCount(0);
+
+        // 페이지 이동
+        navigate("/diary-compare");
       } else {
         alert(`Error: ${result.message}`);
       }

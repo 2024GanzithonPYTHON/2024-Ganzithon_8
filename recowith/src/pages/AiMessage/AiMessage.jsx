@@ -271,21 +271,12 @@ import "./AiMessage.css";
 
 const AiMessage = () => {
   const [message, setMessage] = useState("");
-  const [imageUrl, setImageUrl] = useState("");
   const [loading, setLoading] = useState(true);
   const [showPopup, setShowPopup] = useState(false); 
   const navigate = useNavigate();
-  const userId = 1; 
-
-  const getDate = () => {
-    const date = new Date();
-    return date.toISOString().split("T")[0];
-  };
 
   useEffect(() => {
-    const fetchAiMessageAndDiaryImage = async () => {
-      const todayDate = getDate();
-
+    const fetchAiMessage = async () => {
       try {
         setLoading(true);
         const aiResponse = await axios.post(
@@ -293,37 +284,24 @@ const AiMessage = () => {
           {},
           {
             headers: {
-              Authorization: `Bearer ${localStorage.getItem("userToken")}`,
-            },
-          }
-        );
-        setMessage(aiResponse.data.choices[0].message || "AI 메시지를 가져올 수 없습니다.");
-
-        const diaryResponse = await axios.get(
-          `${process.env.REACT_APP_API_URL}/diary/${userId}/${todayDate}`,
-          {
-            headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${localStorage.getItem("userToken")}`,
             },
+            withCredentials: true,
           }
         );
 
-        if (diaryResponse.status === 200) {
-          const diaryImage = diaryResponse.data.data.diaries[0]?.diaryImage;
-          setImageUrl(diaryImage || "");
-        } else {
-          console.error("Failed to fetch today's diary.");
-        }
+        // 응답의 content 필드에서 메시지를 추출
+        const aiMessage = aiResponse.data.choices[0]?.message?.content || "AI 메시지를 가져올 수 없습니다.";
+        setMessage(aiMessage);
       } catch (error) {
-        console.error("Error fetching AI message or diary image:", error);
+        console.error("Error fetching AI message:", error);
         setMessage("메시지를 가져오는 데 실패했습니다.");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchAiMessageAndDiaryImage();
+    fetchAiMessage();
   }, []);
 
   const handleSaveClick = () => {
@@ -345,15 +323,6 @@ const AiMessage = () => {
       <p className="aimessage-subtitle">AI가 주는 오늘의 메세지를 확인해 보세요.</p>
 
       <div className="aimessage-card">
-        <div className="image-container-wrapper">
-          <div className="image-container">
-            {imageUrl ? (
-              <img src={imageUrl} alt="Diary entry" className="diary-image" />
-            ) : (
-              !loading && <p className="placeholder-text">이미지가 없습니다.</p>
-            )}
-          </div>
-        </div>
         <div className="aimessage-content">
           {loading ? <p>로딩 중...</p> : <p>{message}</p>}
         </div>
@@ -385,3 +354,4 @@ const AiMessage = () => {
 };
 
 export default AiMessage;
+

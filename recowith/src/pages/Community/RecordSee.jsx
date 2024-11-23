@@ -105,22 +105,21 @@ const RecordSee = () => {
 
   const fetchLikedCards = async () => {
     try {
-      setLoading(true); 
-      console.log("Fetching liked cards..."); 
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/diary/user/like`, {
+      setLoading(true);
+      console.log("Fetching liked cards...");
+      const response = await axios.get("/diary/user/like", {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`, 
         },
+        withCredentials: true, // 쿠키 전송 활성화
       });
-  
-      console.log("Response from /diary/user/like:", response.data); 
+
       const result = response.data;
-      if (!result.data || !Array.isArray(result.data)) {
-        console.log("No liked posts found."); 
-        setLikedCards([]); 
+      if (!result.data || !Array.isArray(result.data.diaries)) {
+        console.log("No liked posts found.");
+        setLikedCards([]);
       } else {
-        const mappedData = result.data.map((item) => ({
+        const mappedData = result.data.diaries.map((item) => ({
           id: item.id,
           title: item.title,
           date: item.createdAt,
@@ -128,16 +127,16 @@ const RecordSee = () => {
           imageUrl: item.diaryImage || HihiImage,
         }));
         setLikedCards(mappedData);
-        console.log("Mapped liked cards:", mappedData); 
+        console.log("Mapped liked cards:", mappedData);
       }
     } catch (error) {
       console.error("Error fetching liked cards:", error);
       setError("좋아요한 게시물을 불러오는 데 실패했습니다.");
     } finally {
-      setLoading(false); 
+      setLoading(false);
     }
   };
-  
+
   const handleUnlike = async (cardId) => {
     try {
       const response = await axios.post(
@@ -147,15 +146,17 @@ const RecordSee = () => {
           headers: {
             "Content-Type": "application/json",
           },
+          withCredentials: true, // 쿠키 전송 활성화
         }
       );
 
       if (response.status === 200) {
+        console.log(`Successfully unliked card with ID: ${cardId}`);
         setLikedCards((prevCards) =>
-          prevCards.filter((card) => card.id !== cardId)
+          prevCards.filter((card) => card.id !== cardId) // 로컬 상태 업데이트
         );
       } else {
-        console.error("Failed to unlike the card.");
+        console.error("Failed to unlike the card:", response.data);
       }
     } catch (error) {
       console.error("Error unliking the card:", error);
@@ -206,9 +207,9 @@ const Card = ({ card, delay, onUnlike }) => {
   const toggleLike = (e) => {
     e.stopPropagation();
     if (isLiked) {
-      onUnlike(card.id); 
+      onUnlike(card.id); // 서버로 좋아요 취소 요청
     }
-    setIsLiked(!isLiked); 
+    setIsLiked(!isLiked); // 로컬 상태 업데이트
   };
 
   return (
@@ -255,3 +256,4 @@ const Card = ({ card, delay, onUnlike }) => {
 };
 
 export default RecordSee;
+
