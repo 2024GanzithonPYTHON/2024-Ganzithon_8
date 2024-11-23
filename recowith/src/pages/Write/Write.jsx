@@ -51,12 +51,12 @@ function Write() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-
+  
     if (!title || !content) {
       alert("제목과 내용은 필수 입력 사항입니다.");
       return;
     }
-
+  
     try {
       const formData = new FormData();
       const diary = {
@@ -66,7 +66,7 @@ function Write() {
         date,
       };
       formData.append("diary", JSON.stringify(diary));
-
+  
       images.forEach((image, index) => {
         if (image instanceof File) {
           formData.append("diaryImage", image);
@@ -74,28 +74,27 @@ function Write() {
           console.error("이미지가 File 객체가 아닙니다:", image);
         }
       });
-
-      console.log("FormData 전송 내용:");
-      for (let pair of formData.entries()) {
-        console.log(pair[0], pair[1]);
-      }
-
+  
       const response = await axios.post("/diary/save", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
-
+  
       const result = response.data;
       if (result.status === 200) {
         alert("일기가 성공적으로 저장되었습니다!");
         console.log("Saved data:", result.data);
-
+  
+        // 입력 값 초기화
         setTitle("");
         setContent("");
         setDate("");
         setImages([]);
         setWordCount(0);
+  
+        // 페이지 이동
+        navigate("/diary-compare");
       } else {
         alert(`Error: ${result.message}`);
       }
