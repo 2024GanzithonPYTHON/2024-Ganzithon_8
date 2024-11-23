@@ -91,7 +91,6 @@ function Write() {
         alert("일기가 성공적으로 저장되었습니다!");
         navigate("/main");
         console.log("Saved data:", result.data);
-
         setTitle("");
         setContent("");
         setDate("");

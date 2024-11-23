@@ -252,6 +252,7 @@ function Main() {
           title={selectedStory.title}
           content={selectedStory.content}
           image={selectedStory.diaryImage}
+          id={selectedStory.id}
         />
       )}
     </div>

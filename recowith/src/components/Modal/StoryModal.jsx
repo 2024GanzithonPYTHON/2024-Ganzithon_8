@@ -1,9 +1,33 @@
-import style from "./StyledCModal.css";
-import React from "react";
+import React, { useState } from "react";
+import axios from "axios";
 import "./StyledCModal.css";
 
-function StoryModal({ onClose, date, title, content, image }) {
-  console.log(image);
+function StoryModal({ onClose, date, title, content, image, id }) {
+  const [isLiked, setIsLiked] = useState(false);
+
+  const handleLikeClick = async () => {
+    try {
+      const newLikedState = !isLiked;
+      setIsLiked(newLikedState);
+
+      const endpoint = newLikedState ? `/like/${id}` : `/unlike/${id}`;
+      const response = newLikedState
+        ? await axios.post(endpoint)
+        : await axios.delete(endpoint);
+
+      if (response.status !== 200) {
+        throw new Error(`Failed to ${newLikedState ? "like" : "unlike"}`);
+      }
+
+      console.log(
+        `Successfully ${newLikedState ? "liked" : "unliked"} diary ${id}`
+      );
+    } catch (error) {
+      console.error(error);
+      setIsLiked((prevState) => !prevState);
+    }
+  };
+
   return (
     <div className="c-modal-overlay">
       <div className="c-modal-prof-wp" style={{ height: "auto", top: "35%" }}>
@@ -27,6 +51,15 @@ function StoryModal({ onClose, date, title, content, image }) {
         </div>
         <div className="c-modal-content">{content}</div>
         <div className="c-modal-score-wp"></div>
+        <div className="likeBtn" onClick={handleLikeClick}>
+          <img
+            src={`${process.env.PUBLIC_URL}/img/${
+              isLiked ? "clickedlikeBtn.png" : "likeBtn.png"
+            }`}
+            alt="like button"
+            style={{ cursor: "pointer" }}
+          />
+        </div>
       </div>
     </div>
   );

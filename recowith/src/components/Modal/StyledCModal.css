@@ -163,3 +163,14 @@
   top: 20px;
   cursor: pointer;
 }
+
+.likeBtn {
+  width: 17px;
+  height: 17px;
+  float: right;
+  margin-right: 5px;
+}
+
+.c-modal-score-title {
+  color: #67625c;
+}

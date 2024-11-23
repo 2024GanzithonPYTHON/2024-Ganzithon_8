@@ -31,11 +31,27 @@ function Modal({
         </div>
         <div className="c-modal-content">{content}</div>
         <div className="c-modal-score-wp">
-          <span className="c-modal-score" style={{ fontSize: "20px" }}>
-            {score === null ? "아직 입력된 평가가 없습니다." : { score }}
+          <span
+            className="c-modal-score-title"
+            style={{
+              position: "relative",
+              right: "75px",
+              top: "15px",
+              fontWeight: "500",
+            }}
+          >
+            평가 점수
+          </span>
+
+          <span
+            className="c-modal-score"
+            style={{ fontSize: "39px", float: "left" }}
+          >
+            {score === null ? "아직 입력된 평가가 없습니다." : score.score}/
+            <span style={{ color: "#ADADAD", fontSize: "25px" }}>5점</span>
           </span>
         </div>
-        <div className="c-modal-evaluate"></div>
+        <div className="c-modal-evaluate">{score.review}</div>
       </div>
     </div>
   );
