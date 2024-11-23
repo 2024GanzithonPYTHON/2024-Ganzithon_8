@@ -44,5 +44,5 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "https://lion.gyoseung.me"
+  "proxy": "https://lion.gyoseung.me:8080"
 }

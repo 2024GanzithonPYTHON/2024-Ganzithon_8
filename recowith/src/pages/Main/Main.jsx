@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import styles from "./StyledMain.css";
 import Calendar from "react-calendar";
-import Modal from "./../../components/Modal/CalendarModal";
+import Modal from "./../../components/Modal/StoryModal";
 import moment from "moment";
 import { useNavigate } from "react-router-dom";
 
@@ -12,6 +12,7 @@ function Main() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
   const [score, setScore] = useState(1);
+  const [isWatch, setIsWatch] = useState(false);
 
   useEffect(() => {
     const percentage = ((sliderValue - 1) / (5 - 1)) * 100;
@@ -37,6 +38,7 @@ function Main() {
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
+    setIsWatch(true); // 모달을 확인했음을 표시
   };
 
   const handleDateChange = (date) => {
@@ -76,13 +78,26 @@ function Main() {
         <div className="main-story">
           <div className="main-story-title">오늘의 둘러보기</div>
           <div className="main-stories">
-            <div className="main-story-checkline" onClick={handleOpenModal}>
+            <div
+              className="main-story-checkline"
+              onClick={() => handleOpenModal(new Date())}
+              style={{
+                background: isWatch ? "#D9D9D9" : "null",
+              }}
+            >
               <img
                 src={`${process.env.PUBLIC_URL}/img/prof.png`}
                 alt="profile img"
                 className="main-story-profImg"
               />
-              <div className="main-story-innerCircle"></div>
+              <div
+                className="main-story-innerCircle"
+                style={{
+                  backgroundImage: isWatch
+                    ? "linear-gradient(#fff, #fff), #D9D9D9 100%"
+                    : "null",
+                }}
+              ></div>
             </div>
           </div>
         </div>
@@ -160,9 +175,6 @@ function Main() {
           date={moment(selectedDate).format("YYYY.MM.DD")}
           title="숙제 지옥 속 작은 행복"
           content="오늘 진짜 힘들었다. 학교에서 숙제가 왜 이렇게 많은지 모르겠어. 특히 수학 숙제... 이해 안 되는 문제들이 너무 많아서 거의 두 시간 넘게 붙잡고 있었는데, 아직도 다 못 풀었어..."
-          score={score}
-          sliderValue={sliderValue}
-          onSliderChange={handleSliderChange}
         />
       )}
     </div>

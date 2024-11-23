@@ -1,7 +1,10 @@
 import React, { useState } from "react";
+import axios from "axios";
 import style from "./StyledWrite.css";
+import { useNavigate } from "react-router-dom";
 
 function Write() {
+  const navigate = useNavigate();
   const [isPublic, setIsPublic] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [title, setTitle] = useState("");
@@ -17,14 +20,27 @@ function Write() {
       return newState;
     });
   };
-
   const handleImageChange = (event) => {
     const files = event.target.files;
-    if (files.length <= 5) {
-      setImages((prevImages) => [...prevImages, ...Array.from(files)]);
-    } else {
-      alert("이미지는 5개까지 업로드 가능합니다.");
+
+    if (files.length + images.length > 5) {
+      alert("이미지는 최대 5개까지 업로드 가능합니다.");
+      return;
     }
+
+    const newFiles = Array.from(files).filter(
+      (file) => !images.some((img) => img.name === file.name)
+    );
+
+    if (newFiles.length === 0) {
+      alert("중복된 파일이 포함되어 있습니다.");
+      return;
+    }
+
+    setImages((prevImages) => [...prevImages, ...newFiles]);
+
+    console.log("업로드된 파일:", newFiles);
+    console.log("전체 파일 리스트:", [...images, ...newFiles]);
   };
 
   const handleContentChange = (event) => {
@@ -41,24 +57,35 @@ function Write() {
       return;
     }
 
-    const formData = new FormData();
-    formData.append("title", title);
-    formData.append("content", content);
-    formData.append("createdAt", date);
-    formData.append("isVisible", isVisible);
-    for (let i = 0; i < images.length; i++) {
-      formData.append("diaryImage", images[i]);
-    }
-
     try {
-      const response = await fetch("/api/diary/save", {
-        method: "POST",
-        body: formData,
+      const formData = new FormData();
+      const diary = {
+        title,
+        content,
+        isVisible,
+        diaryImage: images,
+      };
+
+      formData.append("diary", JSON.stringify(diary));
+
+      images.forEach((image, index) => {
+        if (image instanceof File) {
+          formData.append(`diaryImage${index}`, image);
+        } else {
+          console.error("이미지가 File 객체가 아닙니다:", image);
+        }
+      });
+      const response = await axios.post("/diary/save", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       });
 
-      const result = await response.json();
-      if (result.status === 0) {
+      const result = response.data;
+      if (result.status === 200) {
         alert("일기가 성공적으로 저장되었습니다!");
+        console.log("Saved data:", result.data);
+
         setTitle("");
         setContent("");
         setDate("");
@@ -68,7 +95,7 @@ function Write() {
         alert(`Error: ${result.message}`);
       }
     } catch (error) {
-      console.error("Error submitting form:", error);
+      console.error("저장 실패", error);
       alert("저장을 실패했습니다. 다시 시도해주세요!");
     }
   };
@@ -81,6 +108,9 @@ function Write() {
             <img
               src={`${process.env.PUBLIC_URL}/img/write-backBtn.png`}
               alt="back button"
+              onClick={() => {
+                navigate("/");
+              }}
             />
           </button>
           RECORD WITH

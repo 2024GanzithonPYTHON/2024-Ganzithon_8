@@ -239,7 +239,7 @@ input[type="date"] {
   display: block-inline;
 }
 .write-img-preview {
-  transform: translateX(110px) translateY(-131px);
+  transform: translateX(120px) translateY(-131px);
   width: 250px;
   display: flex;
   gap: 15px;
