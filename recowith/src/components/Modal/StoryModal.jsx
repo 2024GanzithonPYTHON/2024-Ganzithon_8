@@ -2,7 +2,8 @@ import style from "./StyledCModal.css";
 import React from "react";
 import "./StyledCModal.css";
 
-function StoryModal({ onClose, date, title, content }) {
+function StoryModal({ onClose, date, title, content, image }) {
+  console.log(image);
   return (
     <div className="c-modal-overlay">
       <div className="c-modal-prof-wp" style={{ height: "auto", top: "35%" }}>
@@ -11,7 +12,9 @@ function StoryModal({ onClose, date, title, content }) {
         </div>
         <div className="c-modal-profImg-wp">
           <img
-            src={`${process.env.PUBLIC_URL}/img/prof.png`}
+            src={
+              image === null ? `${process.env.PUBLIC_URL}/img/prof.png` : image
+            }
             alt="profile img"
             className="c-modal-profImg"
             style={{ marginTop: "20px" }}

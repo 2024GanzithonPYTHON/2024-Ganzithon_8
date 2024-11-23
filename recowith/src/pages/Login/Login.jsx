@@ -30,7 +30,7 @@ function Login() {
       });
 
       if (response.status === 200) {
-        navigate("/");
+        navigate("/main");
       } else {
         setErrorMessage(response.data.message || "로그인에 실패했습니다.");
       }

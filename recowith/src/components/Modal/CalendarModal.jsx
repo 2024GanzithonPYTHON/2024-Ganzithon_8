@@ -10,6 +10,7 @@ function Modal({
   sliderValue,
   onSliderChange,
 }) {
+  console.log(score);
   return (
     <div className="c-modal-overlay">
       <div className="c-modal-prof-wp">
@@ -30,14 +31,11 @@ function Modal({
         </div>
         <div className="c-modal-content">{content}</div>
         <div className="c-modal-score-wp">
-          <span className="c-modal-score">{score}</span>
+          <span className="c-modal-score" style={{ fontSize: "20px" }}>
+            {score === null ? "아직 입력된 평가가 없습니다." : { score }}
+          </span>
         </div>
-        <div className="c-modal-evaluate">
-          오늘은 아침부터 자습 시간 덕분에 친구들과 웃을 일도 많았고, 가고
-          싶었던 카페에 가서 맛있는 음료도 마셨고, 시험 점수까지 잘 나와서
-          기분이 최고 였어서 어제의 고생이 보상받는 느낌이라 오늘은 망설임 없이
-          5점을 주고 싶다!
-        </div>
+        <div className="c-modal-evaluate"></div>
       </div>
     </div>
   );

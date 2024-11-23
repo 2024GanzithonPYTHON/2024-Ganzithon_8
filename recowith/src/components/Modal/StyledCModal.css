@@ -94,6 +94,8 @@
   top: 53%;
 }
 .c-modal-score {
+  position: relative;
+  top: 50px;
   color: #5c564c;
   font-family: "Pretendard Variable";
   font-size: 40px;

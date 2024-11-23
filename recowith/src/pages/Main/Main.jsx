@@ -3,18 +3,33 @@ import axios from "axios";
 import styles from "./StyledMain.css";
 import Calendar from "react-calendar";
 import Modal from "./../../components/Modal/StoryModal";
+import CModal from "./../../components/Modal/CalendarModal";
 import moment from "moment";
 import { useNavigate } from "react-router-dom";
 
 function Main() {
+  const today = new Date();
+  const formattedDate = `${today.getFullYear()}년 ${
+    today.getMonth() + 1
+  }월 ${today.getDate()}일`;
   const navigate = useNavigate();
   const [sliderValue, setSliderValue] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
   const [score, setScore] = useState(1);
-  const [watchedStories, setWatchedStories] = useState([]); // watched stories state
+  const [watchedStories, setWatchedStories] = useState([]);
   const [stories, setStories] = useState([]);
   const [selectedStory, setSelectedStory] = useState(null);
+  const [selectedDiary, setSelectedDiary] = useState(null);
+  const [todayScore, setTodayScore] = useState(null);
+
+  useEffect(() => {
+    if (todayScore === null) {
+      const score = Math.floor(Math.random() * 5) + 1;
+      setTodayScore(score);
+      setSliderValue(score);
+    }
+  }, [todayScore]);
 
   useEffect(() => {
     axios
@@ -26,7 +41,9 @@ function Main() {
       .catch((error) => {
         console.error("Error fetching stories:", error);
       });
+  }, []);
 
+  useEffect(() => {
     const percentage = ((sliderValue - 1) / (5 - 1)) * 100;
     document
       .querySelector(".main-score-range")
@@ -47,8 +64,6 @@ function Main() {
     const story = stories.find((story) => story.id === storyId);
     setSelectedStory(story);
     setIsModalOpen(true);
-
-    // Add storyId to watchedStories array when opened
     setWatchedStories((prev) => [...prev, storyId]);
   };
 
@@ -58,7 +73,24 @@ function Main() {
 
   const handleDateChange = (date) => {
     setSelectedDate(date);
-    setScore(Math.floor(Math.random() * 5) + 1);
+    fetchDiaryForDate(date);
+  };
+
+  const fetchDiaryForDate = async (date) => {
+    try {
+      const formattedDate = moment(date).format("YYYY-MM-DD");
+      const response = await axios.get(`/diary/date?date=${formattedDate}`);
+
+      if (response.data.data) {
+        setSelectedDiary(response.data.data);
+      } else {
+        alert("작성된 일기가 없습니다");
+        setSelectedDiary(null);
+      }
+    } catch (error) {
+      console.error("Error fetching diary entry:", error);
+      alert("작성된 일기가 없습니다");
+    }
   };
 
   const handleLogout = async () => {
@@ -94,7 +126,7 @@ function Main() {
           <div className="main-story-title">오늘의 둘러보기</div>
           <div
             className="main-stories"
-            style={{ display: "flex", gap: "11px" }}
+            style={{ display: "flex", gap: "15px" }}
           >
             {stories.map((story) => (
               <div
@@ -104,17 +136,21 @@ function Main() {
                 style={{
                   background: watchedStories.includes(story.id)
                     ? "#D9D9D9"
-                    : "null", // Change background color only for watched stories
+                    : "null",
                   borderColor: watchedStories.includes(story.id)
                     ? "#D9D9D9"
-                    : "initial", // Change border color only for watched stories
+                    : "initial",
                   borderWidth: watchedStories.includes(story.id)
                     ? "2px"
-                    : "initial", // Optional: adjust border thickness
+                    : "initial",
                 }}
               >
                 <img
-                  src={`${process.env.PUBLIC_URL}/img/prof.png`}
+                  src={
+                    story.diaryImage
+                      ? `${story.diaryImage}`
+                      : `${process.env.PUBLIC_URL}/img/prof.png`
+                  }
                   alt="profile img"
                   className="main-story-profImg"
                 />
@@ -123,7 +159,7 @@ function Main() {
                   style={{
                     backgroundImage: watchedStories.includes(story.id)
                       ? "linear-gradient(#fff, #fff), #D9D9D9 100%"
-                      : "null", // Change inner circle style for watched stories
+                      : "null",
                   }}
                 ></div>
               </div>
@@ -131,9 +167,9 @@ function Main() {
           </div>
         </div>
         <div className="main-score-wp">
-          <div className="main-date">2024년 11월 2일 점수</div>
+          <div className="main-date">{formattedDate} 점수</div>
           <div className="main-score">
-            <span className="main-yes-score">{score}/</span>5
+            <span className="main-yes-score">{todayScore}/</span>5
           </div>
           <div className="rangescroller">
             <input
@@ -159,6 +195,7 @@ function Main() {
             formatMonthYear={(locale, date) => moment(date).format("YYYY MM월")}
             calendarType="gregory"
             minDetail="year"
+            onChange={handleDateChange}
           />
         </div>
       </div>
@@ -198,13 +235,23 @@ function Main() {
           />
         </div>
       </div>
+      {selectedDiary && (
+        <CModal
+          onClose={() => setSelectedDiary(null)}
+          date={selectedDiary.createdAt}
+          title={selectedDiary.title}
+          score={selectedDiary.score}
+          content={selectedDiary.content}
+          diaryImage={selectedDiary.diaryImage}
+        />
+      )}
       {isModalOpen && selectedStory && (
         <Modal
           onClose={handleCloseModal}
           date={moment(selectedStory.createdAt).format("YYYY.MM.DD")}
           title={selectedStory.title}
           content={selectedStory.content}
-          diaryImage={selectedStory.diaryImage}
+          image={selectedStory.diaryImage}
         />
       )}
     </div>

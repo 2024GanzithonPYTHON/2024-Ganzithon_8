@@ -6,19 +6,18 @@ import Login from "./pages/Login/Login.jsx";
 import Signup from "./pages/Signup/Signup.jsx";
 import Findpw from "./pages/Findpw/Findpw.jsx";
 import Write from "./pages/Write/Write.jsx";
-import AiMessage from './pages/AiMessage/AiMessage';
-import Community from './pages/Community/Community';
-import DiaryCompare from './pages/DiaryCompare/DiaryCompare';
-import DiaryReview from './pages/DiaryReview/DiaryReview';
-import RecordSee from './pages/Community/RecordSee';
-
+import AiMessage from "./pages/AiMessage/AiMessage";
+import Community from "./pages/Community/Community";
+import DiaryCompare from "./pages/DiaryCompare/DiaryCompare";
+import DiaryReview from "./pages/DiaryReview/DiaryReview";
+import RecordSee from "./pages/Community/RecordSee";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Main />} />
-        <Route path="/splash" element={<Splash />} />
+        <Route path="/main" element={<Main />} />
+        <Route path="/" element={<Splash />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/findpw" element={<Findpw />} />
