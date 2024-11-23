@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+/* import React, { useState, useEffect } from 'react';
 import './DiaryReview.css';
 import NavigationBar from '../../components/NavigationBar/NavigationBar';
 import LineChart from "./LineChart";
@@ -272,116 +272,136 @@ const DiaryReview = () => {
   );
 };
 
-export default DiaryReview;
- /*import React, { useState, useEffect } from 'react';
+export default DiaryReview;   */
+
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import './DiaryReview.css';
 import NavigationBar from '../../components/NavigationBar/NavigationBar';
 import LineChart from "./LineChart";
 import HihiImage from '../../components/Images/hihi.png';
 
 const DiaryReview = () => {
-  const [viewMode, setViewMode] = useState('monthly'); 
-  const [selectedDate, setSelectedDate] = useState(''); 
-  const [labels, setLabels] = useState([]); 
-  const [data, setData] = useState([]); 
-  const [startIndex, setStartIndex] = useState(0); 
-  const [isPopupOpen, setIsPopupOpen] = useState(false); 
+  const [viewMode, setViewMode] = useState('monthly');
+  const [selectedDate, setSelectedDate] = useState('');
+  const [labels, setLabels] = useState([]);
+  const [data, setData] = useState([]);
+  const [startIndex, setStartIndex] = useState(0);
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [rating, setRating] = useState(3);
   const [comment, setComment] = useState('');
+  const [allScores, setAllScores] = useState([]); 
 
+  const baseUrl = process.env.REACT_APP_API_BASE_URL; // .env에서 API URL 가져오기
+
+  // 초기화
   useEffect(() => {
-    const fakeLabels = ['11/01', '11/02', '11/03', '11/04', '11/05'];
-    const fakeData = [3, 4, 2, 5, 4];
-    setLabels(fakeLabels);
-    setData(fakeData);
-    initializeGraph(); 
-  }, []); 
-  
+    const initialize = async () => {
+      const scores = await fetchAllScores();
+      setAllScores(scores); 
+      initializeGraph(); 
+    };
+    initialize();
+  }, []);
 
-    const initializeGraph = () => {
+  // /score API 호출 (axios)
+  const fetchAllScores = async () => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/score`);
+      return response.data.data.scores; // 모든 점수 반환
+    } catch (error) {
+      console.error('Error fetching all scores:', error);
+      return [];
+    }
+  };
+
+  // 그래프 초기화
+  const initializeGraph = async () => {
     const currentDate = new Date();
     if (viewMode === 'monthly') {
       const year = currentDate.getFullYear();
       const month = currentDate.getMonth() + 1;
       setSelectedDate(`${year}년 ${month}월`);
-      updateGraphData('monthly', `${year}-${month}`, 0);
+      updateGraphData('monthly', new Date(year, month - 1, 1), 0);
     } else {
       const year = currentDate.getFullYear();
       setSelectedDate(`${year}년`);
-      updateGraphData('yearly', `${year}`, 0);
+      updateGraphData('yearly', new Date(year, 0, 1), 0);
     }
   };
 
-  const updateGraphData = async (mode, period, index) => {
+  // 그래프 데이터 업데이트
+  const updateGraphData = (mode, baseDate, index) => {
+    const year = baseDate.getFullYear();
+
     if (mode === 'monthly') {
-      // 월별 데이터 조회
-      try {
-        const response = await fetch(`/diary/month?date=${period}`, { method: 'GET' });
-        const diaryEntries = await response.json();
+      const month = baseDate.getMonth();
+      const startDay = 1 + index * 6; // 6일 단위
+      const endDay = Math.min(startDay + 5, new Date(year, month + 1, 0).getDate()); // 한 달의 마지막 날
 
-        const days = [];
-        const ratings = [];
-
-        for (const entry of diaryEntries.slice(index * 6, (index + 1) * 6)) {
-          const { id, date } = entry;
-          const scoreResponse = await fetch(`/score${id}`, { method: 'GET' });
-          const { score } = await scoreResponse.json();
-
-          days.push(date.slice(-5)); // 날짜 형식: MM-DD
-          ratings.push(score);
-        }
-
-        setLabels(days);
-        setData(ratings);
-      } catch (error) {
-        console.error('Error fetching monthly data:', error);
+      const days = [];
+      const ratings = [];
+      for (let day = startDay; day <= endDay; day++) {
+        const dateString = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const score = allScores.find((item) => item.createDate.startsWith(dateString))?.score || null;
+        days.push(`${month + 1}/${day}`);
+        ratings.push(score);
       }
+
+      setLabels(days);
+      setData(ratings);
     } else if (mode === 'yearly') {
-      // 연간 데이터 조회
-      try {
-        const response = await fetch(`/diary/year?year=${period}`, { method: 'GET' });
-        const diaryEntries = await response.json();
+      const startMonth = index * 6; // 6개월 단위 시작
+      const endMonth = Math.min(startMonth + 6, 12); // 최대 12월까지
 
-        const months = Array.from({ length: 12 }, (_, i) => `${i + 1}월`);
-        const monthScores = Array(12).fill(0);
-        const monthCounts = Array(12).fill(0);
+      const months = [];
+      const ratings = [];
+      for (let month = startMonth; month < endMonth; month++) {
+        const scoresForMonth = allScores.filter(
+          (item) =>
+            new Date(item.createDate).getFullYear() === year &&
+            new Date(item.createDate).getMonth() === month
+        );
 
-        for (const entry of diaryEntries) {
-          const { id, date } = entry;
-          const month = parseInt(date.slice(5, 7)) - 1; // 월 추출 (0부터 시작)
-          const scoreResponse = await fetch(`/score${id}`, { method: 'GET' });
-          const { score } = await scoreResponse.json();
-
-          monthScores[month] += score;
-          monthCounts[month] += 1;
+        months.push(`${month + 1}월`);
+        if (scoresForMonth.length > 0) {
+          const averageScore = Math.round(
+            scoresForMonth.reduce((sum, item) => sum + item.score, 0) / scoresForMonth.length
+          );
+          ratings.push(averageScore);
+        } else {
+          ratings.push(null);
         }
-
-        const averageScores = monthScores.map((sum, i) => (monthCounts[i] ? sum / monthCounts[i] : 0));
-        setLabels(months.slice(index * 6, (index + 1) * 6));
-        setData(averageScores.slice(index * 6, (index + 1) * 6));
-      } catch (error) {
-        console.error('Error fetching yearly data:', error);
       }
+
+      setLabels(months);
+      setData(ratings);
     }
   };
 
-  const handlePrevious = () => {
+  // 이전 페이지 핸들러
+  const handlePrevious = async () => {
     if (startIndex > 0) {
       setStartIndex(startIndex - 1);
-      updateGraphData(viewMode, selectedDate, startIndex - 1);
+      const [year] = selectedDate.replace('년', '').split(' ').map(Number);
+      updateGraphData(viewMode, new Date(year, 0, 1), startIndex - 1);
     }
   };
 
-  const handleNext = () => {
-    if (viewMode === 'monthly' && labels.length === 6) {
+  // 다음 페이지 핸들러
+  const handleNext = async () => {
+    if (viewMode === 'yearly' && startIndex < 1) {
       setStartIndex(startIndex + 1);
-      updateGraphData(viewMode, selectedDate, startIndex + 1);
-    } else if (viewMode === 'yearly' && labels.length === 6) {
+      const [year] = selectedDate.replace('년', '').split(' ').map(Number);
+      updateGraphData(viewMode, new Date(year, 0, 1), startIndex + 1);
+    } else if (viewMode === 'monthly') {
+      const [year, month] = selectedDate.replace('년', '').replace('월', '').split(' ').map(Number);
       setStartIndex(startIndex + 1);
-      updateGraphData(viewMode, selectedDate, startIndex + 1);
+      updateGraphData('monthly', new Date(year, month - 1, 1), startIndex + 1);
     }
   };
 
+  // 보기 모드 변경
   const handleViewChange = (mode) => {
     const currentDate = new Date();
     const year = currentDate.getFullYear();
@@ -390,33 +410,33 @@ const DiaryReview = () => {
     if (mode === 'monthly') {
       setSelectedDate(`${year}년 ${month}월`);
       setStartIndex(0);
-      updateGraphData('monthly', `${year}-${month}`, 0);
+      updateGraphData('monthly', new Date(year, month - 1, 1), 0);
     } else if (mode === 'yearly') {
       setSelectedDate(`${year}년`);
       setStartIndex(0);
-      updateGraphData('yearly', `${year}`, 0);
+      updateGraphData('yearly', new Date(year, 0, 1), 0);
     }
 
     setViewMode(mode);
   };
 
+  // 팝업 열기/닫기
   const togglePopup = () => {
     setIsPopupOpen(!isPopupOpen);
   };
-
-  const selectDate = async (date) => {
+  const selectDate = (date) => {
     const [year, month] = date.replace('년', '').replace('월', '').split(' ').map(Number);
-
+  
     if (viewMode === 'monthly') {
       setSelectedDate(`${year}년 ${month}월`);
       setStartIndex(0);
-      await updateGraphData('monthly', `${year}-${month}`, 0);
+      updateGraphData('monthly', new Date(year, month - 1, 1), 0);
     } else if (viewMode === 'yearly') {
       setSelectedDate(`${year}년`);
       setStartIndex(0);
-      await updateGraphData('yearly', `${year}`, 0);
+      updateGraphData('yearly', new Date(year, 0, 1), 0);
     }
-
+  
     setIsPopupOpen(false);
   };
 
@@ -456,20 +476,41 @@ const DiaryReview = () => {
           </svg>
         </button>
       </div>
+  
       <div className="diary-review-content">
         <div className="graph-card">
-          <button className="svg-button" onClick={handlePrevious}>
-          <svg width="9" height="14" viewBox="0 0 9 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M8 1L2 7L8 13" stroke="#938A7E" stroke-width="2" stroke-linecap="round"/>
-</svg>
-          </button>
-          <LineChart labels={labels} data={data} />
-          <button className="svg-button" onClick={handleNext}>
-          <svg width="9" height="14" viewBox="0 0 9 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M1 13L7 7L0.999999 1" stroke="#938A7E" stroke-width="2" stroke-linecap="round"/>
-</svg>
-          </button>
+          {/* 조건부 렌더링 추가 */}
+          {data.length === 0 || data.every((d) => d === null) ? (
+            <p className="no-data-message">아직 데이터가 없습니다.</p>
+          ) : (
+            <>
+              <button className="svg-button" onClick={handlePrevious}>
+                <svg
+                  width="9"
+                  height="14"
+                  viewBox="0 0 9 14"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path d="M8 1L2 7L8 13" stroke="#938A7E" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+              </button>
+              <LineChart labels={labels} data={data} />
+              <button className="svg-button" onClick={handleNext}>
+                <svg
+                  width="9"
+                  height="14"
+                  viewBox="0 0 9 14"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path d="M1 13L7 7L1 1" stroke="#938A7E" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+              </button>
+            </>
+          )}
         </div>
+  
         <h2 className="best-day-title">최고의 날 하이라이트</h2>
         <div className="diary-card">
           <div className="diary-header">
@@ -518,12 +559,20 @@ const DiaryReview = () => {
             <ul className="popup-list">
               {viewMode === 'monthly'
                 ? Array.from({ length: 12 }, (_, i) => `${i + 1}월`).map((month) => (
-                    <li key={month} className="popup-item" onClick={() => selectDate(`2024년 ${month}`)}>
+                    <li
+                      key={month}
+                      className="popup-item"
+                      onClick={() => selectDate(`2024년 ${month}`)}
+                    >
                       2024년 {month}
                     </li>
                   ))
                 : ['2020년', '2021년', '2022년', '2023년', '2024년'].map((year) => (
-                    <li key={year} className="popup-item" onClick={() => selectDate(year)}>
+                    <li
+                      key={year}
+                      className="popup-item"
+                      onClick={() => selectDate(year)}
+                    >
                       {year}
                     </li>
                   ))}
@@ -534,8 +583,8 @@ const DiaryReview = () => {
       <NavigationBar />
     </div>
   );
+  
+
 };
 
 export default DiaryReview;
-
-*/

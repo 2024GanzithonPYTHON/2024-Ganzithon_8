@@ -13,7 +13,7 @@ const NavigationBar = () => {
 
   const navItems = [
     { path: '/community', icon: 'main-com.png', activeIcon: 'main-com-col.png' },
-    { path: '/diary-compare', icon: 'main-write.png', activeIcon: 'main-write-col.png' },
+    { path: '/write', icon: 'main-write.png', activeIcon: 'main-write-col.png' },
     { path: '/',  icon: 'main-home.png', activeIcon: 'main-home-col.png' },
     { path: '/diary-review', icon: 'main-chart.png', activeIcon: 'main-chart-col.png' },
   ];

@@ -28,11 +28,11 @@ const LineChart = ({ labels, data }) => {
       chartInstance = new Chart(ctx, {
         type: "line",
         data: {
-          labels: labels, // X축: 동적으로 전달된 라벨
+          labels: labels, 
           datasets: [
             {
               label: "User Ratings",
-              data: data, // 동적으로 전달된 데이터
+              data: data, 
               borderColor: "#CBC0B0",
               borderWidth: 1,
               backgroundColor: "rgba(75, 192, 192, 0.2)",

@@ -119,12 +119,15 @@ const DiaryCompare = () => {
   );
 };
 
-export default DiaryCompare; */
+export default DiaryCompare; 
+==============================================================================================
+*/
 
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./DiaryCompare.css";
 import BackButton from "../../components/BackButton/BackButton";
+import axios from "axios";
 
 const DiaryCompare = () => {
   const [yesterdayDiary, setYesterdayDiary] = useState(null);
@@ -132,7 +135,7 @@ const DiaryCompare = () => {
   const [rating, setRating] = useState(1);
   const [comment, setComment] = useState("");
   const navigate = useNavigate();
-  const userId = 1; // 유저 ID는 실제로 동적으로 설정해야 할 수 있습니다.
+  const userId = 1; // 유저 ID는 실제로 동적으로 설정
 
   const getDate = (offset) => {
     const date = new Date();
@@ -142,16 +145,15 @@ const DiaryCompare = () => {
 
   const fetchDiary = async (date, setDiary) => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/diary/${userId}/${date}`, {
-        method: "GET",
+      const response = await axios.get( `${process.env.REACT_APP_API_URL}/diary/${userId}/${date}`, 
+        {
         headers: {
           "Content-Type": "application/json",
         },
       });
 
-      if (response.ok) {
-        const result = await response.json();
-        setDiary(result.data.diaries[0]);
+      if (response.status === 200) {
+        setDiary(response.data.data.diaries[0]);
       } else {
         console.error(`Failed to fetch diary for date ${date}`);
       }
@@ -187,23 +189,23 @@ const DiaryCompare = () => {
     }
 
     const postData = {
-      score: parseInt(rating), // 점수는 정수로 변환
+      score: parseInt(rating), 
       review: comment,
     };
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/score/${todayDiary.id}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(postData),
-      });
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/score/${todayDiary.id}`,
+        postData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-      if (response.ok) {
-        const result = await response.json();
-        console.log("Score and review saved successfully:", result);
-        // 성공 시 다음 페이지로 이동
+      if (response.status === 200) {
+        console.log("Score and review saved successfully:", response.data);
         navigate("/ai-message");
       } else {
         console.error("Failed to save score and review.");
@@ -219,7 +221,6 @@ const DiaryCompare = () => {
       <h2 className="diary-compare-title">어제와 오늘</h2>
       <p className="diary-compare-subtitle">어제의 나와 오늘의 나를 비교해 보세요.</p>
 
-      {/* 어제의 일기 */}
       {yesterdayDiary ? (
         <div className="diary-card">
           <div className="diary-header">
@@ -237,7 +238,6 @@ const DiaryCompare = () => {
         <p>어제의 일기를 불러오는 중...</p>
       )}
 
-      {/* 오늘의 일기 */}
       {todayDiary ? (
         <div className="diary-card">
           <div className="diary-header">
@@ -288,10 +288,12 @@ const DiaryCompare = () => {
       </div>
 
       <button className="submit-button" onClick={handleSubmit}>
-        완료하기
+        저장하기
       </button>
     </div>
   );
 };
 
 export default DiaryCompare;
+
+
