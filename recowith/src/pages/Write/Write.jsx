@@ -63,18 +63,23 @@ function Write() {
         title,
         content,
         isVisible,
-        diaryImage: images,
+        date,
       };
-
       formData.append("diary", JSON.stringify(diary));
 
       images.forEach((image, index) => {
         if (image instanceof File) {
-          formData.append(`diaryImage${index}`, image);
+          formData.append("diaryImage", image);
         } else {
           console.error("이미지가 File 객체가 아닙니다:", image);
         }
       });
+
+      console.log("FormData 전송 내용:");
+      for (let pair of formData.entries()) {
+        console.log(pair[0], pair[1]);
+      }
+
       const response = await axios.post("/diary/save", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
@@ -198,4 +203,4 @@ function Write() {
   );
 }
 
-export default Write;  
+export default Write;
