@@ -16,7 +16,7 @@ function StoryModal({ onClose, date, title, content }) {
             className="c-modal-profImg"
             style={{ marginTop: "20px" }}
           />
-          <div className="c-modal-innerCircle"></div>
+          <div className="c-modal-innerCircle" style={{ top: "18px" }}></div>
         </div>
         <div className="c-modal-date-wp">
           <div className="c-modal-profDate">{date}</div>

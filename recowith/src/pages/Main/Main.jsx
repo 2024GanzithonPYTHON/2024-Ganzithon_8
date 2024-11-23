@@ -12,9 +12,21 @@ function Main() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
   const [score, setScore] = useState(1);
-  const [isWatch, setIsWatch] = useState(false);
+  const [watchedStories, setWatchedStories] = useState([]); // watched stories state
+  const [stories, setStories] = useState([]);
+  const [selectedStory, setSelectedStory] = useState(null);
 
   useEffect(() => {
+    axios
+      .get("/diary")
+      .then((response) => {
+        setStories(response.data.data);
+        console.log(response.data.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching stories:", error);
+      });
+
     const percentage = ((sliderValue - 1) / (5 - 1)) * 100;
     document
       .querySelector(".main-score-range")
@@ -31,14 +43,17 @@ function Main() {
     event.target.style.setProperty("--value", `${percentage}%`);
   };
 
-  const handleOpenModal = (date) => {
-    setSelectedDate(date);
+  const handleOpenModal = (storyId) => {
+    const story = stories.find((story) => story.id === storyId);
+    setSelectedStory(story);
     setIsModalOpen(true);
+
+    // Add storyId to watchedStories array when opened
+    setWatchedStories((prev) => [...prev, storyId]);
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
-    setIsWatch(true); // 모달을 확인했음을 표시
   };
 
   const handleDateChange = (date) => {
@@ -77,28 +92,42 @@ function Main() {
         </div>
         <div className="main-story">
           <div className="main-story-title">오늘의 둘러보기</div>
-          <div className="main-stories">
-            <div
-              className="main-story-checkline"
-              onClick={() => handleOpenModal(new Date())}
-              style={{
-                background: isWatch ? "#D9D9D9" : "null",
-              }}
-            >
-              <img
-                src={`${process.env.PUBLIC_URL}/img/prof.png`}
-                alt="profile img"
-                className="main-story-profImg"
-              />
+          <div
+            className="main-stories"
+            style={{ display: "flex", gap: "11px" }}
+          >
+            {stories.map((story) => (
               <div
-                className="main-story-innerCircle"
+                key={story.id}
+                className="main-story-checkline"
+                onClick={() => handleOpenModal(story.id)}
                 style={{
-                  backgroundImage: isWatch
-                    ? "linear-gradient(#fff, #fff), #D9D9D9 100%"
-                    : "null",
+                  background: watchedStories.includes(story.id)
+                    ? "#D9D9D9"
+                    : "null", // Change background color only for watched stories
+                  borderColor: watchedStories.includes(story.id)
+                    ? "#D9D9D9"
+                    : "initial", // Change border color only for watched stories
+                  borderWidth: watchedStories.includes(story.id)
+                    ? "2px"
+                    : "initial", // Optional: adjust border thickness
                 }}
-              ></div>
-            </div>
+              >
+                <img
+                  src={`${process.env.PUBLIC_URL}/img/prof.png`}
+                  alt="profile img"
+                  className="main-story-profImg"
+                />
+                <div
+                  className="main-story-innerCircle"
+                  style={{
+                    backgroundImage: watchedStories.includes(story.id)
+                      ? "linear-gradient(#fff, #fff), #D9D9D9 100%"
+                      : "null", // Change inner circle style for watched stories
+                  }}
+                ></div>
+              </div>
+            ))}
           </div>
         </div>
         <div className="main-score-wp">
@@ -169,16 +198,17 @@ function Main() {
           />
         </div>
       </div>
-      {isModalOpen && selectedDate && (
+      {isModalOpen && selectedStory && (
         <Modal
           onClose={handleCloseModal}
-          date={moment(selectedDate).format("YYYY.MM.DD")}
-          title="숙제 지옥 속 작은 행복"
-          content="오늘 진짜 힘들었다. 학교에서 숙제가 왜 이렇게 많은지 모르겠어. 특히 수학 숙제... 이해 안 되는 문제들이 너무 많아서 거의 두 시간 넘게 붙잡고 있었는데, 아직도 다 못 풀었어..."
+          date={moment(selectedStory.createdAt).format("YYYY.MM.DD")}
+          title={selectedStory.title}
+          content={selectedStory.content}
+          diaryImage={selectedStory.diaryImage}
         />
       )}
     </div>
   );
 }
 
-export default Main; 
+export default Main;
